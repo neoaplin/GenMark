@@ -60,13 +60,13 @@
 
                 <!-- Input Section -->
                 <div class="flex-1">
-                    <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Paste GenAI Content Here</label>
+                    <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Paste GenAI content here</label>
                     <div class="relative">
                         <textarea 
                             id="input-area"
                             rows="15"
                             class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 resize-y"
-                            placeholder="Paste your formatted text here..."
+                            placeholder="Paste the ChatGPT/Copilot/Gemini/Claude text here..."
                         ></textarea>
                          <button id="clear-button" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -76,19 +76,22 @@
 
                 <!-- Output Section -->
                 <div class="flex-1">
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="output-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300">Your Markdown Output</label>
-                        <button id="copy-button" class="btn-feedback bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-5 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
-                            Copy to Clipboard
-                        </button>
+                    <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">The Markdown will be shown here</label>
+                    <div class="relative">
+                        <textarea 
+                            id="output-area"
+                            rows="15"
+                            readonly
+                            class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 font-mono text-sm shadow-inner"
+                            placeholder="Your clean Markdown will appear here..."
+                        ></textarea>
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="output-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300"></label>
+                            <button id="copy-button" class="btn-feedback bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-5 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
+                                Copy to Clipboard
+                            </button>
+                        </div>
                     </div>
-                    <textarea 
-                        id="output-area"
-                        rows="15"
-                        readonly
-                        class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 font-mono text-sm shadow-inner"
-                        placeholder="Your clean Markdown will appear here..."
-                    ></textarea>
                 </div>
             </div>
 
