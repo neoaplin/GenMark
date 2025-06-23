@@ -39,6 +39,13 @@
         .btn-feedback {
             transition: all 0.2s ease-in-out;
         }
+        /* Style for placeholder on the contenteditable div */
+        [contenteditable=true]:empty:before {
+            content: attr(placeholder);
+            pointer-events: none;
+            display: block; /* for line-break */
+            color: #9ca3af; /* text-gray-400 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 antialiased">
@@ -60,14 +67,15 @@
 
                 <!-- Input Section -->
                 <div class="flex-1">
-                    <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Paste GenAI content here</label>
+                    <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Paste GenAI Content Here</label>
                     <div class="relative">
-                        <textarea 
+                        <!-- CHANGED: from <textarea> to <div contenteditable> -->
+                        <div 
                             id="input-area"
-                            rows="15"
-                            class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 resize-y"
-                            placeholder="Paste the ChatGPT/Copilot/Gemini/Claude text here..."
-                        ></textarea>
+                            contenteditable="true"
+                            class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 overflow-auto min-h-[300px]"
+                            placeholder="Paste your formatted text here..."
+                        ></div>
                          <button id="clear-button" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
@@ -75,22 +83,19 @@
                 </div>
 
                 <!-- Output Section -->
-                <div class="flex-1">
-                    <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">The Markdown will be shown here</label>
-                    <div class="relative">
-                        <textarea 
-                            id="output-area"
-                            rows="15"
-                            readonly
-                            class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 font-mono text-sm shadow-inner"
-                            placeholder="Your clean Markdown will appear here..."
-                        ></textarea>
-                        <div class="flex justify-between items-center mb-2">
-                            <label for="output-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300"></label>
-                            <button id="copy-button" class="btn-feedback bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-5 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
-                                Copy to Clipboard
-                            </button>
-                        </div>
+                <div class="flex-1 flex flex-col">
+                    <label for="output-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Your Markdown Output</label>
+                    <textarea 
+                        id="output-area"
+                        rows="15"
+                        readonly
+                        class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 font-mono text-sm shadow-inner flex-grow min-h-[300px]"
+                        placeholder="Your clean Markdown will appear here..."
+                    ></textarea>
+                    <div class="flex justify-end mt-4">
+                         <button id="copy-button" class="btn-feedback bg-green-600 text-white hover:bg-green-700 rounded-lg px-5 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800">
+                            Copy to Clipboard
+                        </button>
                     </div>
                 </div>
             </div>
@@ -114,37 +119,20 @@
             const toast = document.getElementById('toast');
 
             // --- Initialize Turndown Service ---
-            // This service will handle the core conversion logic.
             const turndownService = new TurndownService({
-                headingStyle: 'atx',      // Use # for headings
-                hr: '---',                // Use --- for horizontal rules
-                bulletListMarker: '-',    // Use - for unordered lists
-                codeBlockStyle: 'fenced', // Use ``` for code blocks
-                emDelimiter: '*',         // Use * for italics
-                strongDelimiter: '**'     // Use ** for bold
+                headingStyle: 'atx',
+                hr: '---',
+                bulletListMarker: '-',
+                codeBlockStyle: 'fenced',
+                emDelimiter: '*',
+                strongDelimiter: '**'
             });
             
             // --- CRUCIAL: Custom Turndown Rules ---
-            // GenAI platforms often use non-standard HTML. You need to inspect
-            // the copied HTML and add rules to handle it correctly.
-            // This is an example rule. You will need to add more specific ones.
-            //
-            // EXAMPLE: Some platforms might wrap code in a <div> with a specific class
-            // instead of a standard <pre><code> structure.
             turndownService.addRule('geminiCodeBlock', {
-                filter: function (node, options) {
-                    // This is a hypothetical filter. You must adjust this by inspecting
-                    // the actual HTML from your target GenAI platform.
-                    // For example, it might be a div with a class like 'code-block'
-                    // or a <pre> tag with a special attribute.
-                    return (
-                        node.nodeName === 'PRE'
-                    );
-                },
+                filter: 'pre',
                 replacement: function (content, node, options) {
-                    // Clean up leading/trailing newlines that Turndown might add
                     const code = content.trim();
-                    // Try to find a language from a class name (e.g., class="language-python")
                     let language = '';
                     const languageMatch = /language-(\S+)/.exec(node.className);
                     if (languageMatch) {
@@ -154,41 +142,33 @@
                 }
             });
 
-            // --- Event Handler for Pasting Content ---
-            inputArea.addEventListener('paste', (event) => {
-                // Prevent the browser's default paste action
-                event.preventDefault();
-
-                // Get the pasted content as HTML
-                const pastedHtml = (event.clipboardData || window.clipboardData).getData('text/html');
-                
-                // If there's no HTML content, fall back to plain text
-                if (!pastedHtml) {
-                    const pastedText = (event.clipboardData || window.clipboardData).getData('text/plain');
-                    inputArea.value = pastedText;
-                    outputArea.value = pastedText; // No conversion possible
-                    return;
-                }
-                
-                // Set the input area's value to the raw HTML for inspection (optional)
-                // For a cleaner UX, you might want to paste the plain text version instead.
-                inputArea.value = (event.clipboardData || window.clipboardData).getData('text/plain');
-
-
-                // Convert the HTML to Markdown
+            // --- Main Conversion Logic ---
+            // This function is now called on any input to the editable div.
+            function updateMarkdown() {
+                const sourceHtml = inputArea.innerHTML;
                 try {
-                    const markdown = turndownService.turndown(pastedHtml);
+                    const markdown = turndownService.turndown(sourceHtml);
                     outputArea.value = markdown;
                 } catch (error) {
                     console.error('Error during Markdown conversion:', error);
                     outputArea.value = 'Error: Could not convert content to Markdown.';
                 }
-            });
+            }
 
+            // --- Event Listeners ---
+            
+            // This single 'input' event listener handles pastes, typing, deletions, etc.
+            inputArea.addEventListener('input', updateMarkdown);
+
+            // --- Event Handler for Clear Button ---
+            clearButton.addEventListener('click', () => {
+                inputArea.innerHTML = ''; // Clear the editable div
+                updateMarkdown(); // This will clear the output area as well
+            });
+            
             // --- Event Handler for Copy Button ---
             copyButton.addEventListener('click', () => {
                 if (!outputArea.value) {
-                    // Feedback for empty content
                     copyButton.textContent = 'Nothing to Copy!';
                     copyButton.classList.add('bg-red-500', 'hover:bg-red-600');
                     setTimeout(() => {
@@ -198,21 +178,16 @@
                     return;
                 }
                 
-                // Copy logic using document.execCommand for iFrame compatibility
                 outputArea.select();
-                outputArea.setSelectionRange(0, 99999); // For mobile devices
+                outputArea.setSelectionRange(0, 99999);
                 
                 try {
                     document.execCommand('copy');
                     
-                    // Show "Copied!" toast notification
                     toast.classList.remove('opacity-0', 'translate-y-4');
                     toast.classList.add('opacity-100', 'translate-y-0');
-                    
-                    // Change button text for feedback
                     copyButton.textContent = 'Copied!';
                     
-                    // Hide notification and reset button after 2 seconds
                     setTimeout(() => {
                         toast.classList.remove('opacity-100', 'translate-y-0');
                         toast.classList.add('opacity-0', 'translate-y-4');
@@ -226,16 +201,9 @@
                         copyButton.textContent = 'Copy to Clipboard';
                     }, 2000);
                 }
-
-                // Deselect the text
                 window.getSelection().removeAllRanges();
             });
-            
-            // --- Event Handler for Clear Button ---
-            clearButton.addEventListener('click', () => {
-                inputArea.value = '';
-                outputArea.value = '';
-            });
+
         });
     </script>
 
