@@ -46,13 +46,18 @@
             display: block; /* for line-break */
             color: #9ca3af; /* text-gray-400 */
         }
+        /* Ensure the app body doesn't exceed screen height */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 antialiased">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 antialiased h-screen flex flex-col">
 
     <!-- Main Container -->
-    <main class="container mx-auto p-4 md:p-8 max-w-7xl">
-        <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-10">
+    <main class="container mx-auto p-4 md:p-8 max-w-7xl flex-grow flex flex-col">
+        <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-10 flex-grow flex flex-col">
 
             <!-- Header -->
             <header class="text-center mb-8">
@@ -63,20 +68,19 @@
             </header>
 
             <!-- Main Content Grid -->
-            <div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
+            <div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0 flex-grow min-h-0">
 
                 <!-- Input Section -->
-                <div class="flex-1">
+                <div class="flex-1 flex flex-col">
                     <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Paste GenAI Content Here</label>
-                    <div class="relative">
-                        <!-- CHANGED: from <textarea> to <div contenteditable> -->
+                    <div class="relative flex-grow">
                         <div 
                             id="input-area"
                             contenteditable="true"
-                            class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 overflow-auto min-h-[300px]"
+                            class="absolute inset-0 w-full h-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 overflow-auto"
                             placeholder="Paste your formatted text here..."
                         ></div>
-                         <button id="clear-button" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200">
+                         <button id="clear-button" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 z-10">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
@@ -87,9 +91,8 @@
                     <label for="output-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Your Markdown Output</label>
                     <textarea 
                         id="output-area"
-                        rows="15"
                         readonly
-                        class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 font-mono text-sm shadow-inner flex-grow min-h-[300px]"
+                        class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 font-mono text-sm shadow-inner flex-grow"
                         placeholder="Your clean Markdown will appear here..."
                     ></textarea>
                     <div class="flex justify-end mt-4">
