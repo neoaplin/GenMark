@@ -203,10 +203,10 @@
             <div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0 flex-grow min-h-0">
 
                 <div class="flex-1 flex flex-col">
-                    <label for="input-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Rich Text</label>
+                    <label for="richtext-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Rich Text</label>
                     <div class="relative flex-grow">
                         <div 
-                            id="input-area"
+                            id="richtext-area"
                             contenteditable="true"
                             class="rich-text-io  absolute inset-0 w-full h-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 overflow-auto"
                             placeholder="Paste your rich text here..."
@@ -223,9 +223,9 @@
                 </div>
 
                 <div class="flex-1 flex flex-col">
-                    <label for="output-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Markdown</label>
+                    <label for="markdown-area" class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Markdown</label>
                     <textarea 
-                        id="output-area"
+                        id="markdown-area"
                         class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50 font-mono text-sm shadow-inner flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Your clean Markdown will appear here..."
                     ></textarea>
@@ -248,8 +248,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DOM Element References ---
-            const inputArea = document.getElementById('input-area');
-            const outputArea = document.getElementById('output-area');
+            const richtextArea = document.getElementById('richtext-area');
+            const markdownArea = document.getElementById('markdown-area');
             const copyMarkdownButton = document.getElementById('copy-markdown-button');
             const copyHtmlButton = document.getElementById('copy-html-button');
             const clearButton = document.getElementById('clear-button');
@@ -310,26 +310,26 @@
 
             // Convert Rich Text (HTML) to Markdown
             function updateMarkdown() {
-                const sourceHtml = inputArea.innerHTML;
+                const sourceHtml = richtextArea.innerHTML;
                 try {
                     const markdown = turndownService.turndown(sourceHtml);
-                    outputArea.value = markdown;
+                    markdownArea.value = markdown;
                 } catch (error) {
                     console.error('Error during Markdown conversion:', error);
-                    outputArea.value = 'Error: Could not convert content to Markdown.';
+                    markdownArea.value = 'Error: Could not convert content to Markdown.';
                 }
             }
             
             // Convert Markdown to Rich Text (HTML)
             function updateRichText() {
-                const sourceMarkdown = outputArea.value;
+                const sourceMarkdown = markdownArea.value;
                 try {
                     // Using marked.js library
                     const html = marked.parse(sourceMarkdown);
-                    inputArea.innerHTML = html;
+                    richtextArea.innerHTML = html;
                 } catch (error) {
                     console.error('Error during HTML conversion:', error);
-                    inputArea.textContent = 'Error: Could not convert content to HTML.';
+                    richtextArea.textContent = 'Error: Could not convert content to HTML.';
                 }
             }
 
@@ -339,15 +339,15 @@
             // Listen for input on the Rich Text field
             // The check for `document.activeElement` prevents an infinite loop.
             // We only convert if the user is actively typing in this field.
-            inputArea.addEventListener('input', () => {
-                if (document.activeElement === inputArea) {
+            richtextArea.addEventListener('input', () => {
+                if (document.activeElement === richtextArea) {
                     updateMarkdown();
                 }
             });
 
             // Listen for input on the Markdown field
-            outputArea.addEventListener('input', () => {
-                if (document.activeElement === outputArea) {
+            markdownArea.addEventListener('input', () => {
+                if (document.activeElement === markdownArea) {
                     updateRichText();
                 }
             });
@@ -356,18 +356,18 @@
             
             // Clear Button
             clearButton.addEventListener('click', () => {
-                inputArea.innerHTML = '';
-                outputArea.value = '';
+                richtextArea.innerHTML = '';
+                markdownArea.value = '';
             });
             
             // Copy Markdown Button
             copyMarkdownButton.addEventListener('click', () => {
-                if (!outputArea.value) {
+                if (!markdownArea.value) {
                     showButtonFeedback(copyMarkdownButton, false, 'Nothing to Copy!', 'Copy Markdown', 'bg-red-500', 'hover:bg-red-600');
                     return;
                 }
                 
-                navigator.clipboard.writeText(outputArea.value).then(() => {
+                navigator.clipboard.writeText(markdownArea.value).then(() => {
                     showButtonFeedback(copyMarkdownButton, true, 'Copied!', 'Copy Markdown');
                 }).catch(err => {
                     console.error('Failed to copy Markdown: ', err);
@@ -377,7 +377,7 @@
 
             // Copy Rich Text (HTML) Button
             copyHtmlButton.addEventListener('click', () => {
-                const htmlContent = inputArea.innerHTML;
+                const htmlContent = richtextArea.innerHTML;
                 if (!htmlContent.trim()) {
                      showButtonFeedback(copyHtmlButton, false, 'Nothing to Copy!', 'Copy Rich Text', 'bg-red-500', 'hover:bg-red-600');
                     return;
@@ -385,7 +385,7 @@
 
                 try {
                     const blobHtml = new Blob([htmlContent], { type: 'text/html' });
-                    const blobText = new Blob([inputArea.innerText], { type: 'text/plain' });
+                    const blobText = new Blob([richtextArea.innerText], { type: 'text/plain' });
                     const clipboardItem = new ClipboardItem({
                         'text/html': blobHtml,
                         'text/plain': blobText
