@@ -283,6 +283,29 @@
                 }
             });
 
+
+            // Add a custom rule for the indented paragraphs
+            turndownService.addRule('indentedParagraphs', {
+                filter: (node) => {
+                    // Check if the node is a paragraph and has a margin-left style
+                    return node.nodeName === 'P' && node.style.marginLeft && node.textContent.trim().startsWith('•');
+                },
+                replacement: (content, node) => {
+                    const marginLeft = parseFloat(node.style.marginLeft);
+                    // This is a simple logic; you may need to adjust the divisor
+                    // to match your specific indentation levels.
+                    const indentLevel = Math.floor(marginLeft / 36); 
+                    const indentSpaces = '  '.repeat(indentLevel);
+                    const bulletMarker = turndownService.options.bulletListMarker;
+                    
+                    // Remove the bullet and leading spaces from the content
+                    const cleanedContent = content.trim().replace(/^•\s*/, '');
+                    
+                    // Return the correctly indented Markdown list item
+                    return `\n${indentSpaces}${bulletMarker} ${cleanedContent}`;
+                }
+            });
+
             // --- Conversion Logic ---
 
             // Convert Rich Text (HTML) to Markdown
